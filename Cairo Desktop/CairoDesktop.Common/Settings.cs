@@ -603,7 +603,326 @@ namespace CairoDesktop.Common
             get => _autoHideShowDelayMs;
             set => Set(ref _autoHideShowDelayMs, value);
         }
-        
+        #endregion
+
+        #region Minimal taskbar
+        // 0 = classic Cairo taskbar, 1 = minimal panel taskbar
+        private int _taskbarStyle = 1;
+        public int TaskbarStyle
+        {
+            get => _taskbarStyle;
+            set => Set(ref _taskbarStyle, value);
+        }
+
+        private int _minTaskbarHeight = 18;
+        public int MinTaskbarHeight
+        {
+            get => _minTaskbarHeight;
+            set => Set(ref _minTaskbarHeight, Math.Max(16, Math.Min(96, value)));
+        }
+
+        // slide off screen when not in use (classic auto-hide); overrides reserve space
+        private bool _minTaskbarSlideAway = false;
+        public bool MinTaskbarSlideAway
+        {
+            get => _minTaskbarSlideAway;
+            set => Set(ref _minTaskbarSlideAway, value);
+        }
+
+        // keep maximized windows out from under the bar
+        private bool _minTaskbarReserveSpace = true;
+        public bool MinTaskbarReserveSpace
+        {
+            get => _minTaskbarReserveSpace;
+            set => Set(ref _minTaskbarReserveSpace, value);
+        }
+
+        // go transparent (MinTaskbarIdleOpacity) when the mouse is not on the bar
+        private bool _minTaskbarFade = false;
+        public bool MinTaskbarFade
+        {
+            get => _minTaskbarFade;
+            set => Set(ref _minTaskbarFade, value);
+        }
+
+        // size of task and tray icons in px
+        private int _minTaskbarIconSize = 14;
+        public int MinTaskbarIconSize
+        {
+            get => _minTaskbarIconSize;
+            set => Set(ref _minTaskbarIconSize, Math.Max(8, Math.Min(32, value)));
+        }
+
+        private double _minTaskbarIdleOpacity = 0.35;
+        public double MinTaskbarIdleOpacity
+        {
+            get => _minTaskbarIdleOpacity;
+            set => Set(ref _minTaskbarIdleOpacity, Math.Max(0.0, Math.Min(1.0, value)));
+        }
+
+        private int _minTaskbarShowDelayMs = 0;
+        public int MinTaskbarShowDelayMs
+        {
+            get => _minTaskbarShowDelayMs;
+            set => Set(ref _minTaskbarShowDelayMs, Math.Max(0, value));
+        }
+
+        private int _minTaskbarHideDelayMs = 600;
+        public int MinTaskbarHideDelayMs
+        {
+            get => _minTaskbarHideDelayMs;
+            set => Set(ref _minTaskbarHideDelayMs, Math.Max(0, value));
+        }
+
+        private int _minTaskbarAnimationMs = 150;
+        public int MinTaskbarAnimationMs
+        {
+            get => _minTaskbarAnimationMs;
+            set => Set(ref _minTaskbarAnimationMs, Math.Max(0, value));
+        }
+
+        private string _minTaskbarBackground = "#D6D6D6";
+        public string MinTaskbarBackground
+        {
+            get => _minTaskbarBackground;
+            set => Set(ref _minTaskbarBackground, value);
+        }
+
+        private string _minTaskbarForeground = "#000000";
+        public string MinTaskbarForeground
+        {
+            get => _minTaskbarForeground;
+            set => Set(ref _minTaskbarForeground, value);
+        }
+
+        private string _minTaskbarActiveBackground = "#F4F4F4";
+        public string MinTaskbarActiveBackground
+        {
+            get => _minTaskbarActiveBackground;
+            set => Set(ref _minTaskbarActiveBackground, value);
+        }
+
+        private string _minTaskbarHoverBackground = "#E4E4E4";
+        public string MinTaskbarHoverBackground
+        {
+            get => _minTaskbarHoverBackground;
+            set => Set(ref _minTaskbarHoverBackground, value);
+        }
+
+        private string _minTaskbarBorder = "#9A9A9A";
+        public string MinTaskbarBorder
+        {
+            get => _minTaskbarBorder;
+            set => Set(ref _minTaskbarBorder, value);
+        }
+
+        private string _minTaskbarActiveForeground = "#000000";
+        public string MinTaskbarActiveForeground
+        {
+            get => _minTaskbarActiveForeground;
+            set => Set(ref _minTaskbarActiveForeground, value);
+        }
+
+        // window asking for attention
+        private string _minTaskbarFlashBackground = "#F2C46B";
+        public string MinTaskbarFlashBackground
+        {
+            get => _minTaskbarFlashBackground;
+            set => Set(ref _minTaskbarFlashBackground, value);
+        }
+
+        // empty or "Transparent" = same as the bar
+        private string _minTaskbarStartBackground = "";
+        public string MinTaskbarStartBackground
+        {
+            get => _minTaskbarStartBackground;
+            set => Set(ref _minTaskbarStartBackground, value);
+        }
+
+        private string _minTaskbarStartForeground = "#000000";
+        public string MinTaskbarStartForeground
+        {
+            get => _minTaskbarStartForeground;
+            set => Set(ref _minTaskbarStartForeground, value);
+        }
+
+        // task buttons; the Alt pair is used for every second button. Empty = bar background / text color
+        private string _minTaskbarTaskBackground = "";
+        public string MinTaskbarTaskBackground
+        {
+            get => _minTaskbarTaskBackground;
+            set => Set(ref _minTaskbarTaskBackground, value);
+        }
+
+        private string _minTaskbarTaskForeground = "";
+        public string MinTaskbarTaskForeground
+        {
+            get => _minTaskbarTaskForeground;
+            set => Set(ref _minTaskbarTaskForeground, value);
+        }
+
+        private string _minTaskbarTaskAltBackground = "";
+        public string MinTaskbarTaskAltBackground
+        {
+            get => _minTaskbarTaskAltBackground;
+            set => Set(ref _minTaskbarTaskAltBackground, value);
+        }
+
+        private string _minTaskbarTaskAltForeground = "";
+        public string MinTaskbarTaskAltForeground
+        {
+            get => _minTaskbarTaskAltForeground;
+            set => Set(ref _minTaskbarTaskAltForeground, value);
+        }
+
+        // Win+1..9 / Win+0 switch to the Nth window on the minimal taskbar
+        private bool _minTaskbarWinNumbers = true;
+        public bool MinTaskbarWinNumbers
+        {
+            get => _minTaskbarWinNumbers;
+            set => Set(ref _minTaskbarWinNumbers, value);
+        }
+
+        // user name button
+        private bool _minTaskbarShowUser = true;
+        public bool MinTaskbarShowUser
+        {
+            get => _minTaskbarShowUser;
+            set => Set(ref _minTaskbarShowUser, value);
+        }
+
+        // text on the user button; empty = Windows user name
+        private string _minTaskbarUserLabel = "";
+        public string MinTaskbarUserLabel
+        {
+            get => _minTaskbarUserLabel;
+            set => Set(ref _minTaskbarUserLabel, value);
+        }
+
+        private bool _minTaskbarConfirmPower = true;
+        public bool MinTaskbarConfirmPower
+        {
+            get => _minTaskbarConfirmPower;
+            set => Set(ref _minTaskbarConfirmPower, value);
+        }
+
+        private string _minTaskbarUserBackground = "";
+        public string MinTaskbarUserBackground
+        {
+            get => _minTaskbarUserBackground;
+            set => Set(ref _minTaskbarUserBackground, value);
+        }
+
+        private string _minTaskbarUserForeground = "";
+        public string MinTaskbarUserForeground
+        {
+            get => _minTaskbarUserForeground;
+            set => Set(ref _minTaskbarUserForeground, value);
+        }
+
+        // palette assistant: last accent used and light (0) / dark (1)
+        private string _minTaskbarPaletteAccent = "#3D7BD9";
+        public string MinTaskbarPaletteAccent
+        {
+            get => _minTaskbarPaletteAccent;
+            set => Set(ref _minTaskbarPaletteAccent, value);
+        }
+
+        private int _minTaskbarPaletteMode = 0;
+        public int MinTaskbarPaletteMode
+        {
+            get => _minTaskbarPaletteMode;
+            set => Set(ref _minTaskbarPaletteMode, value);
+        }
+
+        private string _minTaskbarFontFamily = "Segoe UI";
+        public string MinTaskbarFontFamily
+        {
+            get => _minTaskbarFontFamily;
+            set => Set(ref _minTaskbarFontFamily, value);
+        }
+
+        private double _minTaskbarFontSize = 12;
+        public double MinTaskbarFontSize
+        {
+            get => _minTaskbarFontSize;
+            set => Set(ref _minTaskbarFontSize, Math.Max(6, Math.Min(32, value)));
+        }
+
+        private int _minTaskbarButtonMaxWidth = 200;
+        public int MinTaskbarButtonMaxWidth
+        {
+            get => _minTaskbarButtonMaxWidth;
+            set => Set(ref _minTaskbarButtonMaxWidth, Math.Max(24, value));
+        }
+
+        private bool _minTaskbarShowStart = true;
+        public bool MinTaskbarShowStart
+        {
+            get => _minTaskbarShowStart;
+            set => Set(ref _minTaskbarShowStart, value);
+        }
+
+        // 0 = built-in app menu, 1 = Cairo programs menu, 2 = Windows Start menu
+        private int _minTaskbarStartAction = 2;
+        public int MinTaskbarStartAction
+        {
+            get => _minTaskbarStartAction;
+            set => Set(ref _minTaskbarStartAction, value);
+        }
+
+        private bool _minTaskbarShowTray = true;
+        public bool MinTaskbarShowTray
+        {
+            get => _minTaskbarShowTray;
+            set => Set(ref _minTaskbarShowTray, value);
+        }
+
+        private bool _minTaskbarShowClock = true;
+        public bool MinTaskbarShowClock
+        {
+            get => _minTaskbarShowClock;
+            set => Set(ref _minTaskbarShowClock, value);
+        }
+
+        private string _minTaskbarClockFormat = "HH:mm";
+        public string MinTaskbarClockFormat
+        {
+            get => _minTaskbarClockFormat;
+            set => Set(ref _minTaskbarClockFormat, value);
+        }
+
+        private bool _minTaskbarShowDesktopButton = true;
+        public bool MinTaskbarShowDesktopButton
+        {
+            get => _minTaskbarShowDesktopButton;
+            set => Set(ref _minTaskbarShowDesktopButton, value);
+        }
+
+        // all tray icons tucked away behind the collapse arrow
+        private bool _minTaskbarTrayCollapsed = false;
+        public bool MinTaskbarTrayCollapsed
+        {
+            get => _minTaskbarTrayCollapsed;
+            set => Set(ref _minTaskbarTrayCollapsed, value);
+        }
+
+        // NotifyIcon identifiers that go into the overflow popup instead of the tray
+        private string[] _minTaskbarHiddenTrayIcons = new string[0];
+        public string[] MinTaskbarHiddenTrayIcons
+        {
+            get => _minTaskbarHiddenTrayIcons;
+            set => Set(ref _minTaskbarHiddenTrayIcons, value);
+        }
+
+        // NotifyIcon identifiers that are not shown at all
+        private string[] _minTaskbarRemovedTrayIcons = new string[0];
+        public string[] MinTaskbarRemovedTrayIcons
+        {
+            get => _minTaskbarRemovedTrayIcons;
+            set => Set(ref _minTaskbarRemovedTrayIcons, value);
+        }
+
         private LogSeverity _logSeverity = LogSeverity.Info;
         public LogSeverity LogSeverity
         {

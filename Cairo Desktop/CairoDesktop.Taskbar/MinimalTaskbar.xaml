@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<objectModel:CairoAppBarWindow
+    xmlns:objectModel="clr-namespace:CairoDesktop.Infrastructure.ObjectModel;assembly=CairoDesktop.Infrastructure"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:self="clr-namespace:CairoDesktop.Taskbar"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:tasks="clr-namespace:ManagedShell.WindowsTasks;assembly=ManagedShell.WindowsTasks"
+    x:Class="CairoDesktop.Taskbar.MinimalTaskbar"
+    x:Name="MinTaskbarWindow"
+    Title="MinimalTaskbar"
+    Left="0"
+    ShowActivated="False"
+    AllowDrop="True"
+    Background="Transparent"
+    Loaded="Window_Loaded"
+    UseLayoutRounding="True"
+    SnapsToDevicePixels="True"
+    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextHintingMode="Fixed">
+    <Window.Resources>
+        <!-- Brushes and fonts are replaced from settings in code (applyLook) -->
+        <SolidColorBrush x:Key="MinBg" Color="#D6D6D6" />
+        <SolidColorBrush x:Key="MinFg" Color="#000000" />
+        <SolidColorBrush x:Key="MinActiveBg" Color="#F4F4F4" />
+        <SolidColorBrush x:Key="MinHoverBg" Color="#E4E4E4" />
+        <SolidColorBrush x:Key="MinBorder" Color="#9A9A9A" />
+        <SolidColorBrush x:Key="MinFlashBg" Color="#F2C46B" />
+        <SolidColorBrush x:Key="MinActiveFg" Color="#000000" />
+        <SolidColorBrush x:Key="MinStartBg" Color="Transparent" />
+        <SolidColorBrush x:Key="MinStartFg" Color="#000000" />
+        <SolidColorBrush x:Key="MinTaskBg" Color="Transparent" />
+        <SolidColorBrush x:Key="MinTaskFg" Color="#000000" />
+        <SolidColorBrush x:Key="MinTaskAltBg" Color="Transparent" />
+        <SolidColorBrush x:Key="MinTaskAltFg" Color="#000000" />
+        <SolidColorBrush x:Key="MinUserBg" Color="Transparent" />
+        <SolidColorBrush x:Key="MinUserFg" Color="#000000" />
+        <FontFamily x:Key="MinFontFamily">Segoe UI</FontFamily>
+        <sys:Double x:Key="MinFontSize">12</sys:Double>
+        <sys:Double x:Key="MinIconSize">14</sys:Double>
+        <sys:Double x:Key="MinTrayCellWidth">18</sys:Double>
+
+        <!-- Plain flat button: no gaps, no rounded bits, just a background change -->
+        <Style x:Key="MinFlatButton" TargetType="ButtonBase">
+            <Setter Property="Foreground" Value="{DynamicResource MinFg}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{DynamicResource MinBorder}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="6,0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ButtonBase">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource MinHoverBg}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource MinActiveBg}" />
+                            </Trigger>
+                            <Trigger Property="ToggleButton.IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource MinActiveBg}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Task button: full-height plain button, icon + title, divider on the right -->
+        <DataTemplate x:Key="MinTaskTemplate" DataType="{x:Type tasks:ApplicationWindow}">
+            <Button x:Name="btn"
+                    Click="TaskButton_Click"
+                    PreviewMouseDown="TaskButton_PreviewMouseDown"
+                    MouseRightButtonUp="TaskButton_MouseRightButtonUp"
+                    ToolTip="{Binding Path=Title}"
+                    ToolTipService.InitialShowDelay="700"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Margin="0"
+                    Padding="0">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                Background="{DynamicResource MinTaskBg}"
+                                BorderBrush="{DynamicResource MinBorder}"
+                                BorderThickness="0,0,1,0"
+                                Padding="7,0">
+                            <Grid>
+                            <DockPanel LastChildFill="True">
+                                <Image Source="{Binding Path=Icon}"
+                                       DockPanel.Dock="Left"
+                                       Width="{DynamicResource MinIconSize}" Height="{DynamicResource MinIconSize}"
+                                       Margin="0,0,6,0"
+                                       VerticalAlignment="Center"
+                                       RenderOptions.BitmapScalingMode="HighQuality" />
+                                <TextBlock x:Name="txt"
+                                           Text="{Binding Path=Title}"
+                                           Foreground="{DynamicResource MinTaskFg}"
+                                           FontFamily="{DynamicResource MinFontFamily}"
+                                           FontSize="{DynamicResource MinFontSize}"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center" />
+                            </DockPanel>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- every second button: alternate colors (listed first so hover/active win) -->
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ContentPresenter}, Path=(ItemsControl.AlternationIndex)}" Value="1">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource MinTaskAltBg}" />
+                                <Setter TargetName="txt" Property="Foreground" Value="{DynamicResource MinTaskAltFg}" />
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource MinHoverBg}" />
+                            </Trigger>
+                            <DataTrigger Binding="{Binding Path=State}" Value="Flashing">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource MinFlashBg}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=State}" Value="Active">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource MinActiveBg}" />
+                                <Setter TargetName="txt" Property="Foreground" Value="{DynamicResource MinActiveFg}" />
+                                <Setter TargetName="txt" Property="FontWeight" Value="Bold" />
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </DataTemplate>
+
+        <!-- Tray icon -->
+        <DataTemplate x:Key="MinTrayIconTemplate">
+            <Border Background="Transparent"
+                    Width="{DynamicResource MinTrayCellWidth}"
+                    VerticalAlignment="Stretch"
+                    ToolTip="{Binding Path=Title}"
+                    MouseDown="TrayIcon_MouseDown"
+                    MouseUp="TrayIcon_MouseUp"
+                    MouseEnter="TrayIcon_MouseEnter"
+                    MouseLeave="TrayIcon_MouseLeave"
+                    MouseMove="TrayIcon_MouseMove">
+                <Image Source="{Binding Path=Icon}"
+                       Width="{DynamicResource MinIconSize}" Height="{DynamicResource MinIconSize}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Loaded="TrayIconImage_Loaded"
+                       RenderOptions.BitmapScalingMode="HighQuality" />
+            </Border>
+        </DataTemplate>
+
+        <ItemsPanelTemplate x:Key="HorizontalPanel">
+            <StackPanel Orientation="Horizontal" />
+        </ItemsPanelTemplate>
+    </Window.Resources>
+
+    <Border x:Name="bdrRoot"
+            Background="{DynamicResource MinBg}"
+            BorderBrush="{DynamicResource MinBorder}"
+            BorderThickness="0"
+            TextElement.Foreground="{DynamicResource MinFg}"
+            TextElement.FontFamily="{DynamicResource MinFontFamily}"
+            TextElement.FontSize="{DynamicResource MinFontSize}"
+            RenderOptions.ClearTypeHint="Enabled"
+            MouseRightButtonUp="Panel_MouseRightButtonUp">
+        <Border.RenderTransform>
+            <TranslateTransform X="0" Y="0" />
+        </Border.RenderTransform>
+
+        <DockPanel LastChildFill="True">
+            <!-- Start: square, full height -->
+            <Button x:Name="btnStart"
+                    DockPanel.Dock="Left"
+                    Style="{StaticResource MinFlatButton}"
+                    Click="Start_Click"
+                    ToolTip="Start"
+                    Padding="0"
+                    Background="{DynamicResource MinStartBg}"
+                    BorderThickness="0,0,1,0">
+                <Grid x:Name="gridStartGlyph" Width="10" Height="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="1" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition Height="1" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Rectangle Grid.Row="0" Grid.Column="0" Fill="{DynamicResource MinStartFg}" />
+                    <Rectangle Grid.Row="0" Grid.Column="2" Fill="{DynamicResource MinStartFg}" />
+                    <Rectangle Grid.Row="2" Grid.Column="0" Fill="{DynamicResource MinStartFg}" />
+                    <Rectangle Grid.Row="2" Grid.Column="2" Fill="{DynamicResource MinStartFg}" />
+                </Grid>
+            </Button>
+
+            <!-- Show desktop: the thin strip at the far right -->
+            <Button x:Name="btnShowDesktop"
+                    DockPanel.Dock="Right"
+                    Style="{StaticResource MinFlatButton}"
+                    Click="ShowDesktop_Click"
+                    ToolTip="Show desktop"
+                    Width="8"
+                    Padding="0"
+                    BorderThickness="0" />
+
+            <!-- Clock -->
+            <ToggleButton x:Name="btnClock"
+                          DockPanel.Dock="Right"
+                          Style="{StaticResource MinFlatButton}"
+                          Click="Clock_Click"
+                          Padding="8,0"
+                          BorderThickness="0">
+                <TextBlock x:Name="txtClock" VerticalAlignment="Center" />
+            </ToggleButton>
+            <Popup x:Name="popClock"
+                   PlacementTarget="{Binding ElementName=btnClock}"
+                   Placement="Top"
+                   StaysOpen="False"
+                   AllowsTransparency="True"
+                   IsOpen="{Binding ElementName=btnClock, Path=IsChecked}"
+                   Opened="AnyPopup_Opened"
+                   Closed="AnyPopup_Closed">
+                <Border Background="{DynamicResource MinBg}" BorderBrush="{DynamicResource MinBorder}" BorderThickness="1" Padding="6">
+                    <StackPanel>
+                        <TextBlock x:Name="txtClockDate" FontWeight="SemiBold" Margin="2,0,2,4" Foreground="{DynamicResource MinFg}" />
+                        <Calendar x:Name="calClock" />
+                    </StackPanel>
+                </Border>
+            </Popup>
+
+            <!-- User: name, click for lock / sleep / hibernate / shut down -->
+            <Button x:Name="btnUser"
+                    DockPanel.Dock="Right"
+                    Style="{StaticResource MinFlatButton}"
+                    Background="{DynamicResource MinUserBg}"
+                    Click="User_Click"
+                    Padding="8,0">
+                <TextBlock x:Name="txtUser" Foreground="{DynamicResource MinUserFg}" VerticalAlignment="Center" />
+            </Button>
+
+            <!-- Tray: [collapse toggle][^ hidden icons][icons] -->
+            <Border x:Name="pnlTray" DockPanel.Dock="Right" BorderBrush="{DynamicResource MinBorder}" BorderThickness="0">
+                <StackPanel Orientation="Horizontal">
+                    <ToggleButton x:Name="btnTrayCollapse"
+                                  Style="{StaticResource MinFlatButton}"
+                                  Click="TrayCollapse_Click"
+                                  Padding="0"
+                                  Width="7"
+                                  ToolTip="Hide tray icons">
+                        <Path x:Name="pathTrayCollapse" Data="M 0 0 L 3 3 L 0 6" Stroke="{DynamicResource MinFg}" StrokeThickness="1" />
+                    </ToggleButton>
+                    <ToggleButton x:Name="btnTrayOverflow"
+                                  Style="{StaticResource MinFlatButton}"
+                                  Padding="4,0"
+                                  ToolTip="Hidden icons"
+                                  Visibility="Collapsed">
+                        <Path Data="M 0 5 L 4 0 L 8 5" Stroke="{DynamicResource MinFg}" StrokeThickness="1.3" />
+                    </ToggleButton>
+                    <Popup x:Name="popTrayOverflow"
+                           PlacementTarget="{Binding ElementName=btnTrayOverflow}"
+                           Placement="Top"
+                           StaysOpen="False"
+                           AllowsTransparency="True"
+                           IsOpen="{Binding ElementName=btnTrayOverflow, Path=IsChecked}"
+                           Opened="AnyPopup_Opened"
+                           Closed="AnyPopup_Closed">
+                        <Border Background="{DynamicResource MinBg}" BorderBrush="{DynamicResource MinBorder}" BorderThickness="1" Padding="2" MaxWidth="180">
+                            <ItemsControl x:Name="lstTrayHidden" ItemTemplate="{StaticResource MinTrayIconTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </Border>
+                    </Popup>
+                    <ItemsControl x:Name="lstTray"
+                                  Margin="0,0,2,0"
+                                  ItemTemplate="{StaticResource MinTrayIconTemplate}"
+                                  ItemsPanel="{StaticResource HorizontalPanel}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Tasks -->
+            <ItemsControl x:Name="lstTasks"
+                          AlternationCount="2"
+                          ItemTemplate="{StaticResource MinTaskTemplate}"
+                          Margin="0"
+                          Focusable="False">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <self:MinimalTaskPanel MaxItemWidth="{Binding Path=ButtonMaxWidth, ElementName=MinTaskbarWindow}" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </DockPanel>
+    </Border>
+</objectModel:CairoAppBarWindow>

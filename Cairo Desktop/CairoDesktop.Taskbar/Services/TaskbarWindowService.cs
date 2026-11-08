@@ -62,47 +62,73 @@ namespace CairoDesktop.Taskbar.Services
                 case "TaskbarGroupingStyle":
                     _shellManager.Tasks.SetTaskCategoryProvider(getTaskCategoryProvider());
                     break;
+                case "TaskbarStyle":
+                    recreateWindows();
+                    break;
+                case "TaskbarEdge":
+                case "MinTaskbarSlideAway":
+                case "MinTaskbarReserveSpace":
+                case "MinTaskbarFade":
+                    // the minimal taskbar picks these up when it is created
+                    if (_settings.TaskbarStyle == 1) recreateWindows();
+                    break;
             }
+        }
+
+        private void recreateWindows()
+        {
+            if (!EnableService)
+            {
+                return;
+            }
+
+            HandleEnableServiceChanged(false);
+            HandleEnableServiceChanged(true);
         }
 
         private void AppBarEvent(object sender, AppBarEventArgs e)
         {
-            if (EnableService && _settings.TaskbarMode == 2)
+            bool hides = _settings.TaskbarStyle == 1 ? (_settings.MinTaskbarSlideAway || _settings.MinTaskbarFade) : _settings.TaskbarMode == 2;
+
+            if (!EnableService || !hides || sender is Taskbar || sender is MinimalTaskbar)
             {
-                if (sender is Taskbar)
-                {
-                    return;
-                }
-
-                if (sender is CairoAppBarWindow otherBar)
-                {
-                    var taskbar = (Taskbar)_windowManager.GetScreenWindow(Windows, otherBar.Screen);
-
-                    if (taskbar == null)
-                    {
-                        return;
-                    }
-
-                    if (taskbar.AppBarEdge != otherBar.AppBarEdge)
-                    {
-                        return;
-                    }
-
-                    if (e.Reason == AppBarEventReason.MouseEnter)
-                    {
-                        taskbar.DisableAutoHide = true;
-                    }
-                    else if (e.Reason == AppBarEventReason.MouseLeave)
-                    {
-                        taskbar.DisableAutoHide = false;
-                    }
-                }
+                return;
             }
+
+            if (!(sender is CairoAppBarWindow otherBar))
+            {
+                return;
+            }
+
+            var window = _windowManager.GetScreenWindow(Windows, otherBar.Screen);
+
+            if (window == null || window.AppBarEdge != otherBar.AppBarEdge)
+            {
+                return;
+            }
+
+            bool disable;
+            if (e.Reason == AppBarEventReason.MouseEnter) disable = true;
+            else if (e.Reason == AppBarEventReason.MouseLeave) disable = false;
+            else return;
+
+            if (window is Taskbar taskbar) taskbar.DisableAutoHide = disable;
+            else if (window is MinimalTaskbar minimalTaskbar) minimalTaskbar.DisableAutoHide = disable;
         }
 
         protected override void OpenWindow(AppBarScreen screen)
         {
-            Taskbar newTaskbar = new Taskbar(_cairoApplication, _shellManager, _windowManager, _desktopManager, _appGrabber, _commandService, _settings, screen, _settings.TaskbarEdge, _settings.TaskbarMode);
+            CairoAppBarWindow newTaskbar;
+
+            if (_settings.TaskbarStyle == 1)
+            {
+                newTaskbar = new MinimalTaskbar(_cairoApplication, _shellManager, _windowManager, _desktopManager, _appGrabber, _commandService, _settings, screen, _settings.TaskbarEdge);
+            }
+            else
+            {
+                newTaskbar = new Taskbar(_cairoApplication, _shellManager, _windowManager, _desktopManager, _appGrabber, _commandService, _settings, screen, _settings.TaskbarEdge, _settings.TaskbarMode);
+            }
+
             Windows.Add(newTaskbar);
             newTaskbar.Show();
         }

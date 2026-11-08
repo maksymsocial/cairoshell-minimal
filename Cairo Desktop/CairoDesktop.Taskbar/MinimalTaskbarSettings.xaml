@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="CairoDesktop.Taskbar.MinimalTaskbarSettings"
+        Title="Taskbar settings"
+        Width="460" Height="640"
+        MinWidth="380" MinHeight="360"
+        WindowStartupLocation="CenterScreen"
+        Background="#EFEFEF"
+        Foreground="#000000"
+        FontFamily="Segoe UI" FontSize="12"
+        TextOptions.TextFormattingMode="Display">
+    <Window.Resources>
+        <Style x:Key="Header" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Margin" Value="0,14,0,6" />
+        </Style>
+        <Style x:Key="Label" TargetType="TextBlock">
+            <Setter Property="Width" Value="130" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="Value" TargetType="TextBlock">
+            <Setter Property="Width" Value="56" />
+            <Setter Property="Margin" Value="6,0,0,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextAlignment" Value="Right" />
+        </Style>
+        <Style TargetType="DockPanel">
+            <Setter Property="Margin" Value="0,3" />
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Margin" Value="0,3" />
+        </Style>
+        <Style TargetType="RadioButton">
+            <Setter Property="Margin" Value="0,2" />
+        </Style>
+        <!-- clickable color square -->
+        <Style x:Key="Swatch" TargetType="Button">
+            <Setter Property="Width" Value="22" />
+            <Setter Property="Height" Value="20" />
+            <Setter Property="Margin" Value="0,0,6,0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="ToolTip" Value="Pick a color" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border BorderBrush="#777" BorderThickness="1">
+                            <Grid>
+                                <!-- checkerboard shows through for see-through / empty colors -->
+                                <Rectangle>
+                                    <Rectangle.Fill>
+                                        <DrawingBrush TileMode="Tile" Viewport="0,0,8,8" ViewportUnits="Absolute">
+                                            <DrawingBrush.Drawing>
+                                                <GeometryDrawing Brush="#CCC" Geometry="M0,0 H1 V1 H0Z M1,1 H2 V2 H1Z" />
+                                            </DrawingBrush.Drawing>
+                                        </DrawingBrush>
+                                    </Rectangle.Fill>
+                                </Rectangle>
+                                <Rectangle Fill="{TemplateBinding Background}" />
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="Slider">
+            <Setter Property="IsSnapToTickEnabled" Value="True" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Bottom" Padding="10" BorderBrush="#C8C8C8" BorderThickness="0,1,0,0">
+            <DockPanel>
+                <Button Content="Close" DockPanel.Dock="Right" Width="80" Click="Close_Click" />
+                <Button Content="Reset to defaults" HorizontalAlignment="Left" Padding="10,2" Click="Reset_Click" />
+            </DockPanel>
+        </Border>
+
+        <TabControl x:Name="tabs" Margin="8,8,8,0">
+            <!-- Look -->
+            <TabItem Header="Look">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10,0,10,10">
+                        <TextBlock Text="Taskbar" Style="{StaticResource Header}" />
+                        <RadioButton x:Name="radStyleMinimal" Content="Minimal panel" Click="Style_Click" />
+                        <RadioButton x:Name="radStyleCairo" Content="Classic Cairo taskbar" Click="Style_Click" />
+
+                        <TextBlock Text="Cairo menu bar" Style="{StaticResource Header}" />
+                        <CheckBox Content="Show Cairo menu bar (Programs, Places, ...)" IsChecked="{Binding EnableMenuBar}" />
+
+                        <TextBlock Text="Position" Style="{StaticResource Header}" />
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="radEdgeBottom" Content="Bottom" Margin="0,2,16,2" Click="Edge_Click" />
+                            <RadioButton x:Name="radEdgeTop" Content="Top" Click="Edge_Click" />
+                        </StackPanel>
+
+                        <TextBlock Text="Size" Style="{StaticResource Header}" />
+                        <DockPanel>
+                            <TextBlock Text="Height (px)" Style="{StaticResource Label}" />
+                            <TextBlock Text="{Binding MinTaskbarHeight}" Style="{StaticResource Value}" DockPanel.Dock="Right" />
+                            <Slider Minimum="16" Maximum="64" TickFrequency="1" Value="{Binding MinTaskbarHeight}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Max button width" Style="{StaticResource Label}" />
+                            <TextBlock Text="{Binding MinTaskbarButtonMaxWidth}" Style="{StaticResource Value}" DockPanel.Dock="Right" />
+                            <Slider Minimum="40" Maximum="400" TickFrequency="5" Value="{Binding MinTaskbarButtonMaxWidth}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Icon size" Style="{StaticResource Label}" />
+                            <TextBlock Text="{Binding MinTaskbarIconSize}" Style="{StaticResource Value}" DockPanel.Dock="Right" />
+                            <Slider Minimum="8" Maximum="32" TickFrequency="1" Value="{Binding MinTaskbarIconSize}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Font size" Style="{StaticResource Label}" />
+                            <TextBlock Text="{Binding MinTaskbarFontSize}" Style="{StaticResource Value}" DockPanel.Dock="Right" />
+                            <Slider Minimum="8" Maximum="20" TickFrequency="0.5" Value="{Binding MinTaskbarFontSize}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Font" Style="{StaticResource Label}" />
+                            <TextBox Text="{Binding MinTaskbarFontFamily, UpdateSourceTrigger=LostFocus}" />
+                        </DockPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Colors -->
+            <TabItem Header="Colors">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10,0,10,10">
+                        <TextBlock Text="Palette from one color" Style="{StaticResource Header}" />
+                        <TextBlock TextWrapping="Wrap" Foreground="#444" Margin="0,0,0,6">
+                            Pick an accent and get a matching set of colors below. You can still change any of them afterwards.
+                        </TextBlock>
+                        <DockPanel>
+                            <TextBlock Text="Accent" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarPaletteAccent"
+                                    Background="{Binding MinTaskbarPaletteAccent}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarPaletteAccent, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+                        <DockPanel Margin="0,4,0,3">
+                            <TextBlock Text="Base" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Right" Content="Apply palette" Padding="12,2" Click="ApplyPalette_Click" />
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <RadioButton x:Name="radPaletteLight" Content="Light" Margin="0,0,16,0" Click="PaletteMode_Click" />
+                                <RadioButton x:Name="radPaletteDark" Content="Dark" Click="PaletteMode_Click" />
+                            </StackPanel>
+                        </DockPanel>
+                        <StackPanel Orientation="Horizontal" Margin="130,4,0,0">
+                            <Button Content="Use Windows accent" Padding="8,2" Margin="0,0,6,0" Click="WindowsAccent_Click" />
+                            <Button Content="Random" Padding="8,2" Click="RandomAccent_Click" />
+                        </StackPanel>
+
+                        <TextBlock Text="Bar" Style="{StaticResource Header}" />
+                        <DockPanel>
+                            <TextBlock Text="Background" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarBackground" Background="{Binding MinTaskbarBackground}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarBackground, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Text and icons" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarForeground" Background="{Binding MinTaskbarForeground}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarForeground, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Lines" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarBorder" Background="{Binding MinTaskbarBorder}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarBorder, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Hover" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarHoverBackground" Background="{Binding MinTaskbarHoverBackground}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarHoverBackground, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+
+                        <TextBlock Text="Windows" Style="{StaticResource Header}" />
+                        <DockPanel>
+                            <TextBlock Text="Active background" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarActiveBackground" Background="{Binding MinTaskbarActiveBackground}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarActiveBackground, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Active text" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarActiveForeground" Background="{Binding MinTaskbarActiveForeground}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarActiveForeground, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Needs attention" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarFlashBackground" Background="{Binding MinTaskbarFlashBackground}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarFlashBackground, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+
+                        <TextBlock Text="Window buttons (empty = bar colors)" Style="{StaticResource Header}" />
+                        <DockPanel>
+                            <TextBlock Text="Background" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Right" Content="None" Padding="6,0" Margin="6,0,0,0" Tag="MinTaskbarTaskBackground" Click="ClearColor_Click" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarTaskBackground" Background="{Binding MinTaskbarTaskBackground}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarTaskBackground, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Text" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Right" Content="None" Padding="6,0" Margin="6,0,0,0" Tag="MinTaskbarTaskForeground" Click="ClearColor_Click" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarTaskForeground" Background="{Binding MinTaskbarTaskForeground}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarTaskForeground, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Every 2nd background" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Right" Content="None" Padding="6,0" Margin="6,0,0,0" Tag="MinTaskbarTaskAltBackground" Click="ClearColor_Click" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarTaskAltBackground" Background="{Binding MinTaskbarTaskAltBackground}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarTaskAltBackground, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Every 2nd text" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Right" Content="None" Padding="6,0" Margin="6,0,0,0" Tag="MinTaskbarTaskAltForeground" Click="ClearColor_Click" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarTaskAltForeground" Background="{Binding MinTaskbarTaskAltForeground}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarTaskAltForeground, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+
+                        <TextBlock Text="User button (empty = bar colors)" Style="{StaticResource Header}" />
+                        <DockPanel>
+                            <TextBlock Text="Background" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Right" Content="None" Padding="6,0" Margin="6,0,0,0" Tag="MinTaskbarUserBackground" Click="ClearColor_Click" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarUserBackground" Background="{Binding MinTaskbarUserBackground}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarUserBackground, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Text" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Right" Content="None" Padding="6,0" Margin="6,0,0,0" Tag="MinTaskbarUserForeground" Click="ClearColor_Click" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarUserForeground" Background="{Binding MinTaskbarUserForeground}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarUserForeground, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+
+                        <TextBlock Text="Start button" Style="{StaticResource Header}" />
+                        <DockPanel>
+                            <TextBlock Text="Background" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Right" Content="None" Padding="6,0" Margin="6,0,0,0" Tag="MinTaskbarStartBackground" Click="ClearColor_Click" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarStartBackground" Background="{Binding MinTaskbarStartBackground}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarStartBackground, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Icon" Style="{StaticResource Label}" />
+                            <Button DockPanel.Dock="Left" Style="{StaticResource Swatch}" Tag="MinTaskbarStartForeground" Background="{Binding MinTaskbarStartForeground}" Click="PickColor_Click" />
+                            <TextBox Text="{Binding MinTaskbarStartForeground, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+
+                        <TextBlock TextWrapping="Wrap" Foreground="#666" Margin="0,10,0,0">
+                            Click a swatch to pick a color, or type #RRGGBB (or #AARRGGBB for see-through).
+                        </TextBlock>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Themes -->
+            <TabItem Header="Themes" x:Name="tabThemes">
+                <DockPanel Margin="10,0,10,10">
+                    <StackPanel DockPanel.Dock="Top">
+                        <TextBlock Text="Save current look" Style="{StaticResource Header}" />
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Content="Save" Width="70" Margin="6,0,0,0" Click="SaveTheme_Click" />
+                            <TextBox x:Name="txtThemeName" VerticalContentAlignment="Center" KeyDown="ThemeName_KeyDown" />
+                        </DockPanel>
+                        <TextBlock TextWrapping="Wrap" Foreground="#666" Margin="0,4,0,0">
+                            Saves all colors, the palette accent, font and sizes. Behavior and tray settings are not part of a theme.
+                        </TextBlock>
+
+                        <TextBlock Text="Saved themes" Style="{StaticResource Header}" />
+                    </StackPanel>
+
+                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,6,0,0">
+                        <Button Content="Load" Width="70" Margin="0,0,6,0" Click="LoadTheme_Click" />
+                        <Button Content="Delete" Width="70" Margin="0,0,6,0" Click="DeleteTheme_Click" />
+                        <Button Content="Open folder" Padding="8,2" Click="OpenThemesFolder_Click" />
+                    </StackPanel>
+
+                    <ListBox x:Name="lstThemes" MinHeight="120" MouseDoubleClick="Themes_DoubleClick"
+                             SelectionChanged="Themes_SelectionChanged" />
+                </DockPanel>
+            </TabItem>
+
+            <!-- Behavior -->
+            <TabItem Header="Behavior">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10,0,10,10">
+                        <TextBlock Text="Screen space" Style="{StaticResource Header}" />
+                        <CheckBox x:Name="chkReserve" Content="Reserve space (maximized windows stop at the bar)"
+                                  IsChecked="{Binding MinTaskbarReserveSpace}" />
+                        <CheckBox x:Name="chkSlide" Content="Slide away when not in use (auto-hide)" Click="Slide_Click" />
+
+                        <TextBlock Text="Transparency" Style="{StaticResource Header}" />
+                        <CheckBox x:Name="chkFade" Content="Fade when not in use"
+                                  IsChecked="{Binding MinTaskbarFade}" />
+
+                        <DockPanel Margin="20,3,0,3" IsEnabled="{Binding MinTaskbarFade}">
+                            <TextBlock Text="Idle opacity" Style="{StaticResource Label}" Width="110" />
+                            <TextBlock Text="{Binding MinTaskbarIdleOpacity, StringFormat={}{0:P0}}" Style="{StaticResource Value}" DockPanel.Dock="Right" />
+                            <Slider Minimum="0" Maximum="1" TickFrequency="0.05" Value="{Binding MinTaskbarIdleOpacity}" />
+                        </DockPanel>
+
+                        <TextBlock Text="Reaction time" Style="{StaticResource Header}" />
+                        <DockPanel>
+                            <TextBlock Text="Delay before showing" Style="{StaticResource Label}" />
+                            <TextBlock Text="{Binding MinTaskbarShowDelayMs, StringFormat={}{0} ms}" Style="{StaticResource Value}" DockPanel.Dock="Right" />
+                            <Slider Minimum="0" Maximum="2000" TickFrequency="25" Value="{Binding MinTaskbarShowDelayMs}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Delay before hiding" Style="{StaticResource Label}" />
+                            <TextBlock Text="{Binding MinTaskbarHideDelayMs, StringFormat={}{0} ms}" Style="{StaticResource Value}" DockPanel.Dock="Right" />
+                            <Slider Minimum="0" Maximum="5000" TickFrequency="50" Value="{Binding MinTaskbarHideDelayMs}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock Text="Animation length" Style="{StaticResource Label}" />
+                            <TextBlock Text="{Binding MinTaskbarAnimationMs, StringFormat={}{0} ms}" Style="{StaticResource Value}" DockPanel.Dock="Right" />
+                            <Slider Minimum="0" Maximum="1000" TickFrequency="10" Value="{Binding MinTaskbarAnimationMs}" />
+                        </DockPanel>
+
+                        <TextBlock Text="Items" Style="{StaticResource Header}" />
+                        <CheckBox Content="Start button" IsChecked="{Binding MinTaskbarShowStart}" />
+                        <DockPanel Margin="20,0,0,4">
+                            <TextBlock Text="Start button opens" Style="{StaticResource Label}" Width="110" />
+                            <ComboBox SelectedIndex="{Binding MinTaskbarStartAction}">
+                                <ComboBoxItem Content="App menu (built in)" />
+                                <ComboBoxItem Content="Cairo programs menu" />
+                                <ComboBoxItem Content="Windows Start menu" />
+                            </ComboBox>
+                        </DockPanel>
+                        <CheckBox Content="Tray icons" IsChecked="{Binding MinTaskbarShowTray}" />
+                        <CheckBox Content="Collapse all tray icons behind the arrow" Margin="20,3,0,3" IsChecked="{Binding MinTaskbarTrayCollapsed}" />
+                        <CheckBox Content="Clock" IsChecked="{Binding MinTaskbarShowClock}" />
+                        <DockPanel Margin="20,0,0,4">
+                            <TextBlock Text="Clock format" Style="{StaticResource Label}" Width="110" />
+                            <TextBox Text="{Binding MinTaskbarClockFormat, UpdateSourceTrigger=PropertyChanged}" ToolTip="e.g. HH:mm, HH:mm:ss, ddd HH:mm, dd.MM HH:mm" />
+                        </DockPanel>
+                        <CheckBox Content="Show desktop button (minimize all)" IsChecked="{Binding MinTaskbarShowDesktopButton}" />
+                        <CheckBox Content="Win + 1..9, 0 switches to that window (drag buttons to reorder)" IsChecked="{Binding MinTaskbarWinNumbers}" />
+                        <CheckBox Content="User name button (lock, sleep, hibernate, shut down)" IsChecked="{Binding MinTaskbarShowUser}" />
+                        <DockPanel Margin="20,0,0,4">
+                            <TextBlock Text="Name shown" Style="{StaticResource Label}" Width="110" />
+                            <TextBox Text="{Binding MinTaskbarUserLabel, UpdateSourceTrigger=PropertyChanged}" ToolTip="Leave empty for your Windows user name" />
+                        </DockPanel>
+                        <CheckBox Content="Ask before sign out / sleep / hibernate / restart / shut down" Margin="20,3,0,3" IsChecked="{Binding MinTaskbarConfirmPower}" />
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Tray -->
+            <TabItem Header="Tray icons" x:Name="tabTray">
+                <DockPanel Margin="10">
+                    <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Margin="0,0,0,8" Foreground="#444">
+                        Icons of programs that are running now. Hidden icons sit behind the ^ arrow.
+                        You can also Ctrl + right click an icon on the taskbar.
+                    </TextBlock>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="lstTrayIcons">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel Margin="0,2">
+                                        <Image Source="{Binding Icon}" Width="16" Height="16" Margin="0,0,8,0" DockPanel.Dock="Left" />
+                                        <ComboBox DockPanel.Dock="Right" Width="110" SelectedIndex="{Binding State}">
+                                            <ComboBoxItem Content="Show" />
+                                            <ComboBoxItem Content="Hidden icons" />
+                                            <ComboBoxItem Content="Don't show" />
+                                        </ComboBox>
+                                        <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" ToolTip="{Binding Identifier}" />
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>
