@@ -279,6 +279,38 @@
                 </DockPanel>
             </TabItem>
 
+            <!-- Items -->
+            <TabItem Header="Items" x:Name="tabItems">
+                <DockPanel Margin="10,0,10,10">
+                    <TextBlock DockPanel.Dock="Top" Text="Bar items, left to right" Style="{StaticResource Header}" />
+
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,6,0,0">
+                        <WrapPanel>
+                            <Button Content="Add ▾" Width="70" Margin="0,0,6,6" Click="ItemAdd_Click" />
+                            <Button Content="Remove" Width="70" Margin="0,0,6,6" Click="ItemRemove_Click" />
+                            <Button Content="Up" Width="50" Margin="0,0,6,6" Click="ItemUp_Click" />
+                            <Button Content="Down" Width="50" Margin="0,0,6,6" Click="ItemDown_Click" />
+                            <Button x:Name="btnItemEdit" Content="Edit script" Padding="8,2" Margin="0,0,6,6" IsEnabled="False" Click="ItemEdit_Click" />
+                        </WrapPanel>
+                        <WrapPanel>
+                            <Button Content="Open scripts folder" Padding="8,2" Margin="0,0,6,6" Click="OpenScripts_Click" />
+                            <Button Content="Restore examples" Padding="8,2" Margin="0,0,6,6" Click="RestoreExamples_Click" ToolTip="Writes cpu-ram.ps1, counter.ps1, disk.nu and README.txt again" />
+                            <Button Content="Default items" Padding="8,2" Margin="0,0,6,6" Click="ItemsDefault_Click" />
+                        </WrapPanel>
+                        <TextBlock TextWrapping="Wrap" Foreground="#666" Margin="0,4,0,0">
+                            A spacer pushes everything after it to the right. Scripts are any command whose output is shown on the bar,
+                            like xfce's generic monitor; README.txt in the scripts folder explains the format.
+                            You can also right-click an item on the bar to move or remove it. Delete and Alt+Up/Down work here.
+                        </TextBlock>
+                    </StackPanel>
+
+                    <ListBox x:Name="lstItems" MinHeight="160"
+                             MouseDoubleClick="Items_DoubleClick"
+                             SelectionChanged="Items_SelectionChanged"
+                             KeyDown="Items_KeyDown" />
+                </DockPanel>
+            </TabItem>
+
             <!-- Behavior -->
             <TabItem Header="Behavior">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">

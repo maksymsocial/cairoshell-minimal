@@ -10,6 +10,8 @@ A fork of [Cairo Desktop](https://github.com/cairoshell/cairoshell) that adds a 
 - Drag task buttons to reorder them; Win+1..0 switches to them like the Windows taskbar
 - Square start button that opens the Windows Start menu
 - Tray icons you can show, hide into an overflow or remove, and collapse all at once
+- Items like an xfce panel: put the built-in parts, separators, spacers, launchers and scripts in any order (right-click the bar > Items...)
+- Script items: any command (PowerShell, Nushell, Python, .bat...) whose output shows on the bar, genmon style, with clicks, scroll, menus, icons and meters. See [docs/scripting.md](docs/scripting.md)
 - Clock and a small show desktop strip; click the clock for a flat month view, timers and a stopwatch (custom alarm sound and volume in settings > Behavior)
 - User button with the account name: Lock, Sign out, Sleep, Hibernate, Restart, Shut down
 - Hiding: fade to a set opacity (with show / hide delays), slide away, or reserve screen space
@@ -49,6 +51,7 @@ The app ends up in `Cairo Desktop/Cairo Desktop/bin/x64/Release/net10.0-windows/
 ## Where the code is
 - `Cairo Desktop/CairoDesktop.Taskbar/MinimalTaskbar*.cs/.xaml` - the bar, task list, drag and Win+N
 - `Cairo Desktop/CairoDesktop.Taskbar/MinimalTaskbarSettings.*` - settings window
+- `Cairo Desktop/CairoDesktop.Taskbar/MinimalTaskbar.Items.cs`, `MinScript.cs`, `MinScriptExamples.cs` - bar items and script items
 - `Cairo Desktop/CairoDesktop.Taskbar/MinimalPalette.cs`, `MinimalThemes.cs`, `NativeMenu.cs`, `WinNumberHook.cs`
 - `Cairo Desktop/CairoDesktop.Common/Settings.cs` - the `MinTaskbar*` settings
 

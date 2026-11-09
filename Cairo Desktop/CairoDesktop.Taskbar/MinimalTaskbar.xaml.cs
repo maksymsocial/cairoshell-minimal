@@ -99,6 +99,7 @@ namespace CairoDesktop.Taskbar
             applyTiming();
             applyLook();
             applyEdge();
+            applyItems();
             applyParts();
 
             setupTasks();
@@ -364,11 +365,12 @@ namespace CairoDesktop.Taskbar
         {
             Visibility vis(bool b) => b ? Visibility.Visible : Visibility.Collapsed;
 
-            btnStart.Visibility = vis(_settings.MinTaskbarShowStart);
-            pnlTray.Visibility = vis(_settings.MinTaskbarShowTray);
-            btnClock.Visibility = vis(_settings.MinTaskbarShowClock);
-            btnShowDesktop.Visibility = vis(_settings.MinTaskbarShowDesktopButton);
-            btnUser.Visibility = vis(_settings.MinTaskbarShowUser);
+            btnStart.Visibility = vis(_settings.MinTaskbarShowStart && inItems("start"));
+            pnlTray.Visibility = vis(_settings.MinTaskbarShowTray && inItems("tray"));
+            btnClock.Visibility = vis(_settings.MinTaskbarShowClock && inItems("clock"));
+            btnShowDesktop.Visibility = vis(_settings.MinTaskbarShowDesktopButton && inItems("desktop"));
+            btnUser.Visibility = vis(_settings.MinTaskbarShowUser && inItems("user"));
+            lstTasks.Visibility = vis(inItems("tasks"));
             txtUser.Text = string.IsNullOrWhiteSpace(_settings.MinTaskbarUserLabel) ? Environment.UserName : _settings.MinTaskbarUserLabel;
         }
 
@@ -496,6 +498,8 @@ namespace CairoDesktop.Taskbar
             {
                 _clockTimer?.Stop();
                 _timerTick?.Stop();
+                foreach (var c in _itemCleanup) c();
+                _itemCleanup.Clear();
                 teardownWinNumbers();
                 _settings.PropertyChanged -= Settings_PropertyChanged;
                 _windowManager.ScreensChanged -= WindowManager_ScreensChanged;
@@ -550,6 +554,10 @@ namespace CairoDesktop.Taskbar
                     applyParts();
                     if (_settings.MinTaskbarShowTray && _shellManager.NotificationArea.Handle == IntPtr.Zero)
                         _shellManager.NotificationArea.Initialize();
+                    break;
+                case "MinTaskbarItems":
+                    applyItems();
+                    applyParts();
                     break;
                 case "MinTaskbarWinNumbers":
                     if (Screen.Primary) WinNumberHook.Enabled = _settings.MinTaskbarWinNumbers;
@@ -628,6 +636,7 @@ namespace CairoDesktop.Taskbar
 
             var menu = new NativeMenu()
                 .Add("Taskbar settings...", () => MinimalTaskbarSettings.ShowWindow(_settings, _shellManager))
+                .Add("Items...", () => MinimalTaskbarSettings.ShowWindow(_settings, _shellManager, "items"))
                 .Add("Tray icons...", () => MinimalTaskbarSettings.ShowWindow(_settings, _shellManager, true))
                 .Add("Show Cairo menu bar", () => _settings.EnableMenuBar = !_settings.EnableMenuBar, true, _settings.EnableMenuBar)
                 .Separator()

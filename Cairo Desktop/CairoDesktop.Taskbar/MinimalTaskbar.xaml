@@ -173,7 +173,8 @@
             <TranslateTransform X="0" Y="0" />
         </Border.RenderTransform>
 
-        <DockPanel LastChildFill="True">
+        <!-- Items go into columns in the order of MinTaskbarItems (applyItems in MinimalTaskbar.Items.cs) -->
+        <Grid x:Name="gridItems">
             <!-- Start: square, full height -->
             <Button x:Name="btnStart"
                     DockPanel.Dock="Left"
@@ -455,6 +456,6 @@
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
-        </DockPanel>
+        </Grid>
     </Border>
 </objectModel:CairoAppBarWindow>

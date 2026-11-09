@@ -900,6 +900,17 @@ namespace CairoDesktop.Common
             set => Set(ref _minTaskbarAlarmSound, value);
         }
 
+        /// <summary>
+        /// What the minimal bar shows, left to right. Built in: start, tasks, tray, user, clock, desktop.
+        /// Extra: separator, spacer (fills free room), space:N, launcher:PATH, script:FILE.
+        /// </summary>
+        private string[] _minTaskbarItems = { "start", "tasks", "tray", "user", "clock", "desktop" };
+        public string[] MinTaskbarItems
+        {
+            get => _minTaskbarItems;
+            set => Set(ref _minTaskbarItems, value);
+        }
+
         /// <summary>Timer alarm volume, 0..100.</summary>
         private int _minTaskbarAlarmVolume = 80;
         public int MinTaskbarAlarmVolume

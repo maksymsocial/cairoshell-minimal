@@ -19,6 +19,13 @@ namespace CairoDesktop.Taskbar
         private readonly Settings _settings;
         private readonly ShellManager _shellManager;
 
+        /// <summary>Opens the window on a tab: "items" or "tray".</summary>
+        public static void ShowWindow(Settings settings, ShellManager shellManager, string tab)
+        {
+            ShowWindow(settings, shellManager, tab == "tray");
+            if (tab == "items") _instance.tabs.SelectedItem = _instance.tabItems;
+        }
+
         public static void ShowWindow(Settings settings, ShellManager shellManager, bool trayTab = false)
         {
             if (_instance == null)
@@ -58,6 +65,7 @@ namespace CairoDesktop.Taskbar
 
             syncRadios();
             refreshThemes();
+            refreshItems();
 
             MinAlarm.PlayingChanged += MinAlarm_PlayingChanged;
             Closed += (s, e) =>
@@ -77,6 +85,9 @@ namespace CairoDesktop.Taskbar
                 case "TaskbarEdge":
                 case "MinTaskbarSlideAway":
                     syncRadios();
+                    break;
+                case "MinTaskbarItems":
+                    refreshItems();
                     break;
             }
         }
