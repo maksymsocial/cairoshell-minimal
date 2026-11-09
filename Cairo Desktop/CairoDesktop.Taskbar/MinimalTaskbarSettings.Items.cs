@@ -68,53 +68,54 @@ namespace CairoDesktop.Taskbar
             setItems(list, at);
         }
 
+        /// <summary>Native light Win32 menu, like the bar's own menus (a WPF ContextMenu would get Cairo's theme).</summary>
         private void ItemAdd_Click(object sender, RoutedEventArgs e)
         {
-            var menu = new ContextMenu { PlacementTarget = sender as UIElement, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
-            MenuItem add(ItemsControl parent, string header, Action action)
-            {
-                var mi = new MenuItem { Header = header };
-                mi.Click += (s, a) => action();
-                parent.Items.Add(mi);
-                return mi;
-            }
+            var menu = new NativeMenu()
+                .Add("Separator", () => insertItem("separator"))
+                .Add("Spacer (fills the free room)", () => insertItem("spacer"))
+                .Add("Space (8 px)", () => insertItem("space:8"))
+                .Separator()
+                .Add("Launcher (app, file, folder)...", addLauncher);
 
-            add(menu, "Separator", () => insertItem("separator"));
-            add(menu, "Spacer (fills the free room)", () => insertItem("spacer"));
-            add(menu, "Space (8 px)", () => insertItem("space:8"));
-            menu.Items.Add(new Separator());
-            add(menu, "Launcher (app, file, folder)...", addLauncher);
-
-            var scripts = new MenuItem { Header = "Script" };
-            foreach (string f in MinScriptExamples.Scripts())
+            var scripts = menu.Submenu("Script");
+            string[] files = MinScriptExamples.Scripts();
+            foreach (string f in files)
             {
                 string file = f;
-                add(scripts, file, () => insertItem("script:" + file));
+                scripts.Add(file, () => insertItem("script:" + file));
             }
-            if (scripts.Items.Count > 0) scripts.Items.Add(new Separator());
-            add(scripts, "Other file...", addScriptFile);
-            menu.Items.Add(scripts);
+            if (files.Length > 0) scripts.Separator();
+            scripts.Add("Other file...", addScriptFile);
 
-            var create = new MenuItem { Header = "New script" };
-            add(create, "PowerShell (.ps1)", () => newScript(".ps1"));
-            add(create, "Nushell (.nu)", () => newScript(".nu"));
-            add(create, "Python (.py)", () => newScript(".py"));
-            add(create, "Batch (.bat)", () => newScript(".bat"));
-            menu.Items.Add(create);
+            menu.Submenu("New script")
+                .Add("PowerShell (.ps1)", () => newScript(".ps1"))
+                .Add("Nushell (.nu)", () => newScript(".nu"))
+                .Add("Python (.py)", () => newScript(".py"))
+                .Add("Batch (.bat)", () => newScript(".bat"));
 
             string[] have = items().Select(s => { MinimalTaskbar.SplitItem(s, out string k, out _); return k; }).ToArray();
             var missing = MinimalTaskbar.BuiltInItems.Where(k => !have.Contains(k)).ToList();
             if (missing.Count > 0)
             {
-                menu.Items.Add(new Separator());
+                menu.Separator();
                 foreach (string k in missing)
                 {
                     string kind = k;
-                    add(menu, describe(kind), () => insertItem(kind));
+                    menu.Add(describe(kind), () => insertItem(kind));
                 }
             }
 
-            menu.IsOpen = true;
+            // drop down under the button, opened after the click finishes
+            var button = sender as FrameworkElement;
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                IntPtr owner = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                Point tl = button.PointToScreen(new Point(0, 0));
+                Point br = button.PointToScreen(new Point(button.ActualWidth, button.ActualHeight));
+                var rect = new NativeMenu.NativeRect { Left = (int)tl.X, Top = (int)tl.Y, Right = (int)br.X, Bottom = (int)br.Y };
+                menu.Show(owner, rect, true);
+            }));
         }
 
         private void addLauncher()
