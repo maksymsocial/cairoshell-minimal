@@ -892,6 +892,22 @@ namespace CairoDesktop.Common
             set => Set(ref _minTaskbarClockFormat, value);
         }
 
+        /// <summary>Sound file for finished timers (wav, mp3, wma, m4a...). Empty = the Windows reminder sound.</summary>
+        private string _minTaskbarAlarmSound = "";
+        public string MinTaskbarAlarmSound
+        {
+            get => _minTaskbarAlarmSound;
+            set => Set(ref _minTaskbarAlarmSound, value);
+        }
+
+        /// <summary>Timer alarm volume, 0..100.</summary>
+        private int _minTaskbarAlarmVolume = 80;
+        public int MinTaskbarAlarmVolume
+        {
+            get => _minTaskbarAlarmVolume;
+            set => Set(ref _minTaskbarAlarmVolume, value);
+        }
+
         private bool _minTaskbarShowDesktopButton = true;
         public bool MinTaskbarShowDesktopButton
         {

@@ -332,6 +332,19 @@
                             <TextBlock Text="Clock format" Style="{StaticResource Label}" Width="110" />
                             <TextBox Text="{Binding MinTaskbarClockFormat, UpdateSourceTrigger=PropertyChanged}" ToolTip="e.g. HH:mm, HH:mm:ss, ddd HH:mm, dd.MM HH:mm" />
                         </DockPanel>
+                        <DockPanel Margin="20,0,0,4">
+                            <TextBlock Text="Timer alarm" Style="{StaticResource Label}" Width="110" />
+                            <Button Content="Default" DockPanel.Dock="Right" Padding="8,2" Margin="4,0,0,0" Click="AlarmDefault_Click" ToolTip="Use the Windows reminder sound" />
+                            <Button Content="Browse..." DockPanel.Dock="Right" Padding="8,2" Margin="4,0,0,0" Click="AlarmBrowse_Click" />
+                            <TextBox x:Name="txtAlarmSound" Text="{Binding MinTaskbarAlarmSound, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="wav, mp3, wma, m4a, aac or flac. Empty = Windows reminder sound" />
+                        </DockPanel>
+                        <DockPanel Margin="20,0,0,4">
+                            <TextBlock Text="Alarm volume" Style="{StaticResource Label}" Width="110" />
+                            <Button x:Name="btnAlarmTest" Content="Test" DockPanel.Dock="Right" Width="56" Margin="6,0,0,0" Click="AlarmTest_Click" />
+                            <TextBlock Text="{Binding MinTaskbarAlarmVolume, StringFormat={}{0}%}" Style="{StaticResource Value}" DockPanel.Dock="Right" />
+                            <Slider Minimum="0" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding MinTaskbarAlarmVolume}" ValueChanged="AlarmVolume_ValueChanged" />
+                        </DockPanel>
                         <CheckBox Content="Show desktop button (minimize all)" IsChecked="{Binding MinTaskbarShowDesktopButton}" />
                         <CheckBox Content="Win + 1..9, 0 switches to that window (drag buttons to reorder)" IsChecked="{Binding MinTaskbarWinNumbers}" />
                         <CheckBox Content="User name button (lock, sleep, hibernate, shut down)" IsChecked="{Binding MinTaskbarShowUser}" />

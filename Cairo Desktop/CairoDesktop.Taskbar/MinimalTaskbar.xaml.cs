@@ -104,6 +104,7 @@ namespace CairoDesktop.Taskbar
             setupTasks();
             setupTray();
             setupClock();
+            setupTimers();
             setupWinNumbers();
 
             _settings.PropertyChanged += Settings_PropertyChanged;
@@ -494,6 +495,7 @@ namespace CairoDesktop.Taskbar
             if (_windowManager?.IsSettingDisplays == true || AllowClose)
             {
                 _clockTimer?.Stop();
+                _timerTick?.Stop();
                 teardownWinNumbers();
                 _settings.PropertyChanged -= Settings_PropertyChanged;
                 _windowManager.ScreensChanged -= WindowManager_ScreensChanged;
@@ -640,18 +642,14 @@ namespace CairoDesktop.Taskbar
         {
             _openPopups++;
             takeFocus();
-            if (sender == popClock)
-            {
-                calClock.DisplayDate = DateTime.Today;
-                calClock.SelectedDate = DateTime.Today;
-                txtClockDate.Text = DateTime.Now.ToString("D");
-            }
+            if (sender == popClock) onClockPopupOpened();
             updateFade();
         }
 
         private void AnyPopup_Closed(object sender, EventArgs e)
         {
             _openPopups = Math.Max(0, _openPopups - 1);
+            if (sender == popClock) updateTimerTick();
             OnPropertyChanged("AllowAutoHide");
             updateFade();
         }

@@ -58,6 +58,13 @@ namespace CairoDesktop.Taskbar
 
             syncRadios();
             refreshThemes();
+
+            MinAlarm.PlayingChanged += MinAlarm_PlayingChanged;
+            Closed += (s, e) =>
+            {
+                MinAlarm.PlayingChanged -= MinAlarm_PlayingChanged;
+                if (_testingAlarm) MinAlarm.Stop();
+            };
             _settings.PropertyChanged += Settings_PropertyChanged;
             Closed += (s, e) => _settings.PropertyChanged -= Settings_PropertyChanged;
         }
@@ -161,6 +168,57 @@ namespace CairoDesktop.Taskbar
         }
 
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
+
+        #region Timer alarm
+        private bool _testingAlarm;
+
+        private void AlarmBrowse_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Timer alarm sound",
+                Filter = MinAlarm.FileFilter,
+                CheckFileExists = true
+            };
+            string current = MinAlarm.Resolve(_settings.MinTaskbarAlarmSound);
+            if (current != null) dlg.InitialDirectory = System.IO.Path.GetDirectoryName(current);
+
+            if (dlg.ShowDialog(this) == true) _settings.MinTaskbarAlarmSound = dlg.FileName;
+        }
+
+        private void AlarmDefault_Click(object sender, RoutedEventArgs e) => _settings.MinTaskbarAlarmSound = "";
+
+        private void AlarmTest_Click(object sender, RoutedEventArgs e)
+        {
+            if (MinAlarm.IsPlaying)
+            {
+                MinAlarm.Stop();
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(_settings.MinTaskbarAlarmSound)
+                && !System.IO.File.Exists(Environment.ExpandEnvironmentVariables(_settings.MinTaskbarAlarmSound.Trim().Trim('"'))))
+            {
+                MessageBox.Show(this, "That file doesn't exist, so the Windows reminder sound will play instead.", "Timer alarm",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+
+            _testingAlarm = true;
+            MinAlarm.Play(_settings.MinTaskbarAlarmSound, _settings.MinTaskbarAlarmVolume, TimeSpan.Zero);
+        }
+
+        private void AlarmVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            // change the volume of a playing test (or alarm) live
+            MinAlarm.SetVolume((int)Math.Round(e.NewValue));
+        }
+
+        private void MinAlarm_PlayingChanged(object sender, EventArgs e)
+        {
+            btnAlarmTest.Content = MinAlarm.IsPlaying ? "Stop" : "Test";
+            if (!MinAlarm.IsPlaying) _testingAlarm = false;
+        }
+        #endregion
 
         #region Colors
         private string getColorSetting(string name) =>

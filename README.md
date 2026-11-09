@@ -10,7 +10,7 @@ A fork of [Cairo Desktop](https://github.com/cairoshell/cairoshell) that adds a 
 - Drag task buttons to reorder them; Win+1..0 switches to them like the Windows taskbar
 - Square start button that opens the Windows Start menu
 - Tray icons you can show, hide into an overflow or remove, and collapse all at once
-- Clock and a small show desktop strip
+- Clock and a small show desktop strip; click the clock for a flat month view, timers and a stopwatch (custom alarm sound and volume in settings > Behavior)
 - User button with the account name: Lock, Sign out, Sleep, Hibernate, Restart, Shut down
 - Hiding: fade to a set opacity (with show / hide delays), slide away, or reserve screen space
 - Every color settable by hand, a palette generated from one accent color, and alternate colors for every second task button
