@@ -21,6 +21,22 @@ A fork of [Cairo Desktop](https://github.com/cairoshell/cairoshell) that adds a 
 
 Right-click the bar and choose **Taskbar settings...** to change any of it.
 
+## Install
+Download **install.bat** from the [latest release](https://github.com/maksymsocial/cairoshell-minimal/releases/latest) and double-click it. No admin rights or .NET install needed. It:
+- downloads the app to `%LOCALAPPDATA%\Programs\CairoMinimal`
+- starts it now and with Windows
+- adds a Start menu shortcut and an entry in **Settings > Apps** to uninstall it
+
+Or paste this into PowerShell:
+
+```
+irm https://github.com/maksymsocial/cairoshell-minimal/releases/latest/download/install.ps1 | iex
+```
+
+Windows may warn about an unknown file; choose **More info > Run anyway**. Running the installer again updates to the latest release and keeps your settings. To remove it, use Settings > Apps > Cairo Minimal Taskbar (settings and themes in `%LOCALAPPDATA%\Cairo Desktop` are kept).
+
+This fork turns off Cairo's built-in updater, since an "update" from the official feed would replace it with stock Cairo.
+
 ## Build
 Needs the .NET 10 SDK.
 

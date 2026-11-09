@@ -11,6 +11,7 @@ namespace CairoDesktop.Infrastructure.Services
         private const string UpdateUrl = "https://cairoshell.github.io/appdescriptor.rss";
         private const string AppName = "Cairo Desktop Environment";
         private const string CompanyName = "Cairo Development Team";
+        private const bool UseOfficialUpdates = false;
 
         private readonly ILogger<WinSparkleApplicationUpdateService> _logger;
         private readonly ICairoApplication _app;
@@ -25,6 +26,11 @@ namespace CairoDesktop.Infrastructure.Services
             _isInitialized = false;
             _logger = logger;
             _app = app;
+
+            // This fork (minimal taskbar) must not take updates from the official Cairo feed:
+            // "updating" would replace it with stock Cairo. Leaving WinSparkle uninitialized
+            // makes IsAvailable false, which hides the update options.
+            if (!UseOfficialUpdates) return;
 
             try
             {
@@ -50,6 +56,7 @@ namespace CairoDesktop.Infrastructure.Services
         {
             get
             {
+                if (!_isInitialized) return false;
                 int result = 0;
                 try
                 {
@@ -65,6 +72,7 @@ namespace CairoDesktop.Infrastructure.Services
 
             set
             {
+                if (!_isInitialized) return;
                 int intValue = Convert.ToInt32(value);
 
                 try
@@ -82,6 +90,7 @@ namespace CairoDesktop.Infrastructure.Services
 
         public void CheckForUpdates()
         {
+            if (!_isInitialized) return;
             try
             {
                 WinSparkle.win_sparkle_check_update_with_ui();
@@ -104,6 +113,7 @@ namespace CairoDesktop.Infrastructure.Services
 
         protected override void DisposeOfUnManagedResources()
         {
+            if (!_isInitialized) return;
             try
             {
                 WinSparkle.win_sparkle_cleanup();
